@@ -1,0 +1,77 @@
+{
+  "entities": {
+    "Settings": {
+      "title": "Settings",
+      "description": "Global application settings managed by admin.",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string" },
+        "appLogo": { "type": "string" },
+        "earningPerAd": { "type": "number" },
+        "userSharePercentage": { "type": "number" },
+        "monetagZoneId": { "type": "string" },
+        "monetagSdkId": { "type": "string" },
+        "botUsername": { "type": "string" },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "reward": { "type": "number" },
+              "link": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "User": {
+      "title": "User",
+      "description": "Stores user profile and earnings information.",
+      "type": "object",
+      "properties": {
+        "telegramId": {
+          "type": "string",
+          "description": "Unique Telegram user ID."
+        },
+        "username": {
+          "type": "string",
+          "description": "Telegram username."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "User's first name."
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "URL to the user's Telegram profile picture."
+        },
+        "earnings": {
+          "type": "number",
+          "description": "Total earnings for the user (20% share)."
+        },
+        "adsWatched": {
+          "type": "integer",
+          "description": "Total number of ads watched by the user."
+        },
+        "lastAdWatchedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of the last ad watched."
+        }
+      },
+      "required": ["telegramId", "earnings"]
+    }
+  },
+  "firestore": {
+    "/settings/config": {
+      "schema": "Settings",
+      "description": "Global app configuration."
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile and earnings data."
+    }
+  }
+}

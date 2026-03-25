@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>DT EARNING ZONE</title>
+    <link rel="icon" href="https://i.ibb.co/gLQsBHNp/logo.png" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+      // Polyfill for CloudStorage to prevent errors in older Telegram versions
+      (function() {
+        const mockCloudStorage = {
+          setItem: (k, v, cb) => cb && cb(null, false),
+          getItem: (k, cb) => cb && cb(null, null),
+          removeItem: (k, cb) => cb && cb(null, false),
+          getKeys: (cb) => cb && cb(null, [])
+        };
+
+        const applyPolyfill = () => {
+          if (window.Telegram && window.Telegram.WebApp) {
+            try {
+              // Check if CloudStorage is supported (version >= 6.9)
+              const version = window.Telegram.WebApp.version || "6.0";
+              const [major, minor] = version.split('.').map(Number);
+              const isSupported = major > 6 || (major === 6 && minor >= 9);
+
+              if (!isSupported) {
+                // Use defineProperty to overwrite the existing getter that logs the error
+                Object.defineProperty(window.Telegram.WebApp, 'CloudStorage', {
+                  value: mockCloudStorage,
+                  writable: true,
+                  configurable: true,
+                  enumerable: true
+                });
+              } else if (!window.Telegram.WebApp.CloudStorage) {
+                window.Telegram.WebApp.CloudStorage = mockCloudStorage;
+              }
+            } catch (e) {
+              // Fallback if anything goes wrong
+              try {
+                window.Telegram.WebApp.CloudStorage = mockCloudStorage;
+              } catch (err) {}
+            }
+          }
+        };
+
+        // Run immediately after telegram-web-app.js
+        applyPolyfill();
+        // Also run on DOMContentLoaded just in case
+        window.addEventListener('DOMContentLoaded', applyPolyfill);
+      })();
+    </script>
+    <script src='//libtl.com/sdk.js' data-zone='10754815' data-sdk='show_10754815'></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>DT EARNING ZONE</title>
+    <link rel="icon" href="https://i.ibb.co/gLQsBHNp/logo.png" />
+    <script>
+      // Pre-emptively define Telegram.WebApp.CloudStorage to prevent error logs in older versions
+      window.Telegram = window.Telegram || {};
+      window.Telegram.WebApp = window.Telegram.WebApp || {};
+      
+      const mockCloudStorage = {
+        setItem: (k, v, cb) => cb && cb(null, false),
+        getItem: (k, cb) => cb && cb(null, null),
+        removeItem: (k, cb) => cb && cb(null, false),
+        getKeys: (cb) => cb && cb(null, [])
+      };
+
+      // Use a getter to ensure it's available even if the SDK tries to overwrite WebApp
+      if (!window.Telegram.WebApp.CloudStorage) {
+        Object.defineProperty(window.Telegram.WebApp, 'CloudStorage', {
+          get: () => mockCloudStorage,
+          configurable: true,
+          enumerable: true
+        });
+      }
+    </script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+      // Re-apply polyfill after SDK loads just in case it overwrote the object
+      (function() {
+        const applyPolyfill = () => {
+          if (window.Telegram && window.Telegram.WebApp) {
+            const version = window.Telegram.WebApp.version || "6.0";
+            const [major, minor] = version.split('.').map(Number);
+            const isSupported = major > 6 || (major === 6 && minor >= 9);
+
+            if (!isSupported || !window.Telegram.WebApp.CloudStorage) {
+              try {
+                Object.defineProperty(window.Telegram.WebApp, 'CloudStorage', {
+                  value: {
+                    setItem: (k, v, cb) => cb && cb(null, false),
+                    getItem: (k, cb) => cb && cb(null, null),
+                    removeItem: (k, cb) => cb && cb(null, false),
+                    getKeys: (cb) => cb && cb(null, [])
+                  },
+                  writable: true,
+                  configurable: true,
+                  enumerable: true
+                });
+              } catch (e) {}
+            }
+          }
+        };
+        applyPolyfill();
+        window.addEventListener('DOMContentLoaded', applyPolyfill);
+      })();
+    </script>
+    <script src='//libtl.com/sdk.js' data-zone='10754815' data-sdk='show_10754815'></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

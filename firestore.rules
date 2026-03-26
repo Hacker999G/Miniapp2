@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper to check if user is an admin
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "minecatika@gmail.com" || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+    }
+
+    // Helper to check if user owns the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /settings/config {
+      allow read: if true; // Everyone can read config
+      allow write: if isAdmin(); // Only admin can update config
+    }
+
+    match /users/{userId} {
+      // Allow any authenticated user to read profiles (needed for referral lookup)
+      allow read: if isAuthenticated();
+      
+      // Users can only create their own document
+      allow create: if isOwner(userId);
+      
+      // Users can update their own document, OR
+      // Any authenticated user can increment another user's referral count and earnings
+      allow update: if isOwner(userId) || (
+        isAuthenticated() && 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['earnings', 'referralCount']) &&
+        request.resource.data.referralCount == resource.data.referralCount + 1
+      );
+    }
+
+    match /withdrawals/{withdrawalId} {
+      allow create: if isAuthenticated(); // Any auth user can request withdrawal
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAdmin(); // Only admin can update status
+    }
+  }
+}

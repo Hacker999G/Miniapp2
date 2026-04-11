@@ -5,8 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>DT EARNING ZONE</title>
     <link rel="icon" href="https://i.ibb.co/gLQsBHNp/logo.png" />
+
+    <script src='//libtl.com/sdk.js' data-zone='10251457' data-sdk='show_10251457'></script>
+
     <script>
-      // Pre-emptively define Telegram.WebApp.CloudStorage to prevent error logs in older versions
+      window.show_10251457 = window.show_10251457 || function() {
+          console.warn("Monetag SDK is not loaded yet.");
+          return Promise.reject("SDK_NOT_READY");
+      };
+    </script>
+
+    <script>
       window.Telegram = window.Telegram || {};
       window.Telegram.WebApp = window.Telegram.WebApp || {};
       
@@ -17,7 +26,6 @@
         getKeys: (cb) => cb && cb(null, [])
       };
 
-      // Use a getter to ensure it's available even if the SDK tries to overwrite WebApp
       if (!window.Telegram.WebApp.CloudStorage) {
         Object.defineProperty(window.Telegram.WebApp, 'CloudStorage', {
           get: () => mockCloudStorage,
@@ -26,9 +34,10 @@
         });
       }
     </script>
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <script>
-      // Re-apply polyfill after SDK loads just in case it overwrote the object
       (function() {
         const applyPolyfill = () => {
           if (window.Telegram && window.Telegram.WebApp) {
@@ -57,11 +66,9 @@
         window.addEventListener('DOMContentLoaded', applyPolyfill);
       })();
     </script>
-    <script src='//libtl.com/sdk.js' data-zone='10251457' data-sdk='show_10251457'></script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
